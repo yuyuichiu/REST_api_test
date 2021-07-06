@@ -1,6 +1,6 @@
 const express = require('express')
 const dotenv = require('dotenv')
-const fishes = require('./fishes')
+const fishes = require('./branches/fishes')
 
 dotenv.config();
 const app = express();
