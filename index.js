@@ -1,20 +1,32 @@
 const express = require('express')
 const dotenv = require('dotenv')
 const mongoose = require('mongoose')
-const fishes = require('./branches/fishes')
+const customers = require('./branches/customers')
+const genres = require('./branches/genres')
+const movies = require('./branches/movies')
 
 dotenv.config();
 const app = express();
 app.use(express.json());
-app.use('/api/fishes', fishes);
+app.use('/movies/api/customers', customers);
+app.use('/movies/api/genres', genres);
+app.use('/movies/api', movies);
 
-const collection = "playground"
-mongoose.connect(`mongodb://localhost:27017/${collection}`, {useNewUrlParser: true, useUnifiedTopology: true})
+const db = "mongodb://localhost:27017/movies"
+mongoose.connect(db, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true})
     .then(c => console.log('Connected to MongoDB.'))
     .catch(err => console.error(err));
 
-app.get('/api', (req, res) => {
-    res.send({ title: 'Mock fishes API', message: 'Welcome!' })
+app.get('/', (req, res) => {
+    res.send({ title: 'Welcome', message: 'Go to path /movies/api to try the movie API' })
+})
+
+app.get('/movies/api', (req, res) => {
+    res.send({
+        title: 'Movies API',
+        paths: ['customers','genre'],
+        message: 'Welcome! Please use postman to test http requests other than GET.'
+    })
 })
 
 

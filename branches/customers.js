@@ -1,52 +1,28 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const AutoIncrement = require('mongoose-sequence')(mongoose);
-const Joi = require('joi');
+const { Customers, validate, validateStrict } = require('../models/customer');
 const router = express.Router();
-
-
-// Schema - mongoDB
-const customerSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true, 
-        minlength: 5,
-        maxlength: 255,
-        trim: true
-    },
-    phone: {
-        type: String,
-        required: true,
-        match: /^[0-9]+$/,
-        trim: true,
-        minlength: 5,
-        maxlength: 20
-    },
-    isGold: {
-        type: Boolean,
-        required: true
-    }
-});
-// auto increment
-customerSchema.plugin(AutoIncrement, {inc_field: 'id'});
-
-// Model - MongoDB
-const Customers = mongoose.model('Customers', customerSchema, 'customers')
-
 
 // Retrieve customers
 router.get('/', async (req, res) => {
     try {
-        return await Customers.find();
+        res.send(await Customers.find().sort('name').limit(100));
     } catch(err) {
-        res.status(400).send('Error: ' + err.message)
+        res.status(404).send('Error: ' + err.message)
+    }
+})
+
+router.get('/:id', async (req, res) => {
+    try {
+        res.send(await Customers.find({ id: req.params.id }));
+    } catch(err) {
+        res.status(404).send('Error: ' + err.message)
     }
 })
 
 // Upload a new customer
 router.post('/', async (req, res) => {
     // validation with Joi
-    const { error } = validateCustomerStrict(req.body);
+    const { error } = validateStrict(req.body);
     if(error) { return res.status(400).send(error.message) }
 
     // upload data to mongodb database
@@ -68,7 +44,7 @@ router.post('/', async (req, res) => {
 // Update current customer
 router.put('/:id', async (req, res) => {
     // validation with Joi
-    const { error } = validateCustomer(req.body);
+    const { error } = validate(req.body);
     if(error) { return res.status(400).send(error.message) }
 
     
@@ -93,28 +69,6 @@ router.delete('/:id', async (req, res) => {
     res.send(customer);
     console.log(customer);
 })
-
-
-// validation functions
-function validateCustomerStrict(input) {
-    const schema = Joi.object({
-        name: Joi.string().required().min(5).max(255),
-        phone: Joi.string().required().min(5).max(20),
-        isGold: Joi.boolean()
-    });
-
-    return schema.validate(input)
-}
-
-function validateCustomer(input) {
-    const schema = Joi.object({
-        name: Joi.string().min(5).max(255),
-        phone: Joi.string().min(5),
-        isGold: Joi.boolean()
-    });
-
-    return schema.validate(input)
-}
 
 // Export the router object for index.js to use this as middleware
 module.exports = router;
