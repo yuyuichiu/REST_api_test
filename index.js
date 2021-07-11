@@ -4,13 +4,19 @@ const mongoose = require('mongoose')
 const customers = require('./branches/customers')
 const genres = require('./branches/genres')
 const movies = require('./branches/movies')
+const rentals = require('./branches/rentals')
+const logins = require('./branches/logins')
+const users = require('./branches/users')
 
 dotenv.config();
 const app = express();
 app.use(express.json());
 app.use('/movies/api/customers', customers);
 app.use('/movies/api/genres', genres);
+app.use('/movies/api/rentals', rentals);
 app.use('/movies/api', movies);
+app.use('/movies/api/users', users);
+app.use('/movies/api/logins', logins);
 
 const db = "mongodb://localhost:27017/movies"
 mongoose.connect(db, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true})

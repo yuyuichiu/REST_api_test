@@ -11,7 +11,7 @@ const movieSchema = new mongoose.Schema({
         maxlength: 200,
         trim: true
     },
-    genre: genreSchema,       // reference to the genre collection
+    genre: [genreSchema],       // reference to the genre collection
     numberInStock: { type: Number, required: true, min: 0, max: 255 },
     dailyRentalRate: { type: Number, required: true, min: 0, max: 255 },
 })
@@ -22,7 +22,7 @@ const Movies = mongoose.model('Movies', movieSchema, 'movies');
 function validateMovie(input) {
     const schema = Joi.object({
         title: Joi.string().min(3).max(200).required(),
-        genre: Joi.string().required(),
+        genre: Joi.array().required(),
         numberInStock: Joi.number().min(0).max(255).required(),
         dailyRentalRate: Joi.number().min(0).max(255).required()
     });
